@@ -10,17 +10,39 @@ based o this information it reports back to Nagios.
 The Gem is tested on Linux (RHEL6 & Binary compatibles) & MS-Windows 2008R2
 but its likely it will run without issues on other OSses
 
+For automatic deployment and configuration this Handler depends on the chef-client cookbook
 
-installation
-------------
-Coming soon
+installation and configuration
+------------------------------
+Add the following to your role/environment to install and configure the handler:
 
-client.rb
----------
-Add the following to your client.rb to make the magic happen:
+    "chef_client": {
+      "load_gems": {
+         "sbp_nagios_chefclient_handler": {
+           "require_name": "sbp_nagios_chefclient_handler/sbp_nagios_chefclient_handler"
+         }
+      },
+      "config": {
+        "report_handlers": [
+           {"class": "SBP::Nagios::Chefclient::Handler", "arguments": []}
+        ],
+        "exception_handlers": [
+           {"class": "SBP::Nagios::Chefclient::Handler", "arguments": []}
+        ]
+      }
+    },
 
-    require '/etc/chef/sbp_nagios_chefclient_handler'
-    report_handlers << SBP::Nagios::Chefclient::Handler.new()
-    exception_handlers << SBP::Nagios::Chefclient::Handler.new()
+The load_gems attribute will install the gem, the config part will tell chef-client to 
+actually use the reporthandler for bot, normal and failed execution. 
 
+Also: add the chef-client::config recipe to your runlist. 
+
+The results file will be created as /var/chef/lastrun_results on Linur or 
+c:\var\chef\lastrun_results on Windows. You can influence the path where the 
+lastrun_results file will be created by provisioning the following attribute:
+
+    "chef_client": {
+        "resultspath": "/your/custom/path/"
+      }
+    }
 
